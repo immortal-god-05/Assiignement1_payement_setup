@@ -2,11 +2,11 @@
 
 > A fully functional e-commerce web app with Razorpay payments, Google Sheets as a database, and zero hosting costs.
 
+---
 
-### WORKNG HOSTED LINK : 
-test2905.netlify.app
+# 🚀 [CLICK HERE TO VIEW LIVE APP → test2905.netlify.app](https://test2905.netlify.app)
 
-
+> **✅ WORKING HOSTED LINK:** **[https://test2905.netlify.app](https://test2905.netlify.app)**
 
 ---
 
