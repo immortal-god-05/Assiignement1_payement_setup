@@ -1,8 +1,12 @@
-# Assiignement1_payement_setup
-
 # ShopEase — Premium E-Commerce Store
 
 > A fully functional e-commerce web app with Razorpay payments, Google Sheets as a database, and zero hosting costs.
+
+
+### WORKNG HOSTED LINK : 
+test2905.netlify.app
+
+
 
 ---
 
