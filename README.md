@@ -172,6 +172,67 @@ Google Sheets (sheets.google.com) — also separate, linked by Sheet ID
 
 ---
 
+## Where to Put Each Key / ID
+
+There are **4 values** you need to configure. Here is exactly where each one goes:
+
+---
+
+### 1. `SHEET_ID` → goes in `Code.gs` (Apps Script)
+This is the ID of your Google Sheet — found in the sheet's URL:
+```
+https://docs.google.com/spreadsheets/d/  ➜ SHEET_ID_IS_HERE  ◀  /edit
+```
+In `Code.gs`, paste it at the very top:
+```javascript
+var SHEET_ID = "paste-your-sheet-id-here";
+```
+
+---
+
+### 2. `RZP_KEY_ID` (Razorpay Public Key) → goes in `Code.gs` (Apps Script)
+This is your Razorpay Key ID, starts with `rzp_test_` (test mode) or `rzp_live_` (live mode).
+Find it at: **Razorpay Dashboard → Settings → API Keys**
+```javascript
+var RZP_KEY_ID = "rzp_test_xxxxxxxxxxxx";
+```
+> Apps Script sends this back to the browser so Razorpay checkout can open. It is safe to expose.
+
+---
+
+### 3. `RZP_SECRET` (Razorpay Secret Key) → goes in `Code.gs` (Apps Script)
+This is the secret that pairs with your Key ID. **Never put this in index.html.**
+```javascript
+var RZP_SECRET = "your-razorpay-secret-here";
+```
+> This never leaves Apps Script. It is used only server-side to verify payment signatures.
+
+---
+
+### 4. `BACKEND` (Apps Script Deployed URL) → goes in `index.html`
+After you deploy your Apps Script as a Web App, you get a URL like:
+```
+https://script.google.com/macros/s/AKfycb.../exec
+```
+In `index.html`, find this line near the top of the `<script>` section and paste your URL:
+```javascript
+var BACKEND = "https://script.google.com/macros/s/AKfycb.../exec";
+```
+> Every time you make changes to `Code.gs` and redeploy, you get a **new URL**. Remember to update this line in `index.html` each time.
+
+---
+
+### Quick Reference Table
+
+| Value | What it is | Where it goes | Safe to share? |
+|-------|-----------|---------------|----------------|
+| `SHEET_ID` | Google Sheet ID from the URL | `Code.gs` top | ⚠️ Keep private |
+| `RZP_KEY_ID` | Razorpay public key (`rzp_test_...`) | `Code.gs` top | ✅ Yes, it's public |
+| `RZP_SECRET` | Razorpay secret key | `Code.gs` top | ❌ Never share |
+| `BACKEND` | Apps Script deployed URL | `index.html` | ⚠️ Keep private |
+
+---
+
 ## Built By
 
 **IMMORTAL** · Payments secured by Razorpay · Data stored in Google Sheets
