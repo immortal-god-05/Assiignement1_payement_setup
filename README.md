@@ -239,4 +239,4 @@ var BACKEND = "https://script.google.com/macros/s/AKfycb.../exec";
 
 ## Built By
 
-**IMMORTAL** · Payments secured by Razorpay · Data stored in Google Sheets
+**HARISH HUDED** · Payments secured by Razorpay · Data stored in Google Sheets
