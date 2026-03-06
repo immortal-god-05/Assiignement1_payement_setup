@@ -1,1 +1,177 @@
 # Assiignement1_payement_setup
+
+# ShopEase — Premium E-Commerce Store
+
+> A fully functional e-commerce web app with Razorpay payments, Google Sheets as a database, and zero hosting costs.
+
+---
+
+## What This App Does
+
+ShopEase is a complete online store where customers can browse products, add them to a cart, fill in their details, and pay securely via Razorpay. Every successful order is automatically recorded in a Google Sheet. There is no traditional server — the entire backend runs on Google Apps Script.
+
+---
+
+## How It Works — The Full Flow
+
+```
+Customer visits index.html
+        ↓
+Products load from Google Sheets (via Apps Script)
+        ↓
+Customer adds items to cart → fills name, phone, email, address
+        ↓
+Frontend asks Apps Script to create a Razorpay Order (server-side)
+        ↓
+Razorpay payment popup opens → customer pays
+        ↓
+Razorpay returns payment proof (payment_id + signature)
+        ↓
+Apps Script verifies the signature using HMAC-SHA256
+        ↓
+Order saved to Google Sheets → "Order Confirmed" shown to customer
+```
+
+---
+
+## Architecture
+
+### Frontend — `index.html`
+A single HTML file that runs entirely in the browser. No framework, no build tools, no npm. It handles:
+
+- Loading and displaying products from the sheet
+- Cart management (add, remove, change quantity)
+- Customer detail form with validation
+- Calling the backend to create orders and verify payments
+- Showing order confirmation or error screens
+
+### Backend — Google Apps Script (`Code.gs`)
+Acts as a serverless API. It exposes two endpoints via HTTP:
+
+| Method | Action | What it does |
+|--------|--------|--------------|
+| GET | `?action=products` | Reads all rows from the Products sheet and returns them as JSON |
+| POST | `action: createOrder` | Calls Razorpay's API server-side to create a payment order |
+| POST | `action: verifyOrder` | Verifies the payment signature and saves the order to the Orders sheet |
+
+The Apps Script URL is the only thing connecting the frontend to the backend. The Razorpay secret key **never leaves the Apps Script** — it is never sent to the browser.
+
+### Database — Google Sheets
+Two tabs act as the database:
+
+**Products tab** — stores what's for sale:
+| Column | Description |
+|--------|-------------|
+| ID | Unique product ID |
+| Name | Product name |
+| Price | Price in ₹ (not paise) |
+| Description | Short product description |
+| Image | Unsplash or any image URL |
+| Badge | Optional label: Popular, New, Sale, Hot |
+
+**Orders tab** — auto-filled on every successful purchase:
+| Column | Description |
+|--------|-------------|
+| Order ID | Internal order number (ORD-timestamp) |
+| Timestamp | Date and time in IST |
+| Customer Name | From checkout form |
+| Email | From checkout form |
+| Phone | From checkout form |
+| Address | Delivery address |
+| Product ID / Name | One row per item in the cart |
+| Qty / Unit Price / Item Total | Per-item breakdown |
+| Grand Total | Full order value |
+| Razorpay Payment ID | e.g. `pay_SNwy...` |
+| Razorpay Order ID | e.g. `order_SNwy...` |
+| Status | `PAID ✓` |
+
+---
+
+## Payment Flow (Razorpay)
+
+Razorpay requires a two-step process for secure payments:
+
+**Step 1 — Order Creation (server-side)**
+The frontend asks Apps Script to create an order. Apps Script calls Razorpay's API using the secret key and returns an `order_id`. This ensures the amount cannot be tampered with by the browser.
+
+**Step 2 — Payment (browser)**
+The Razorpay checkout popup opens using the `order_id`. The customer pays via UPI, card, netbanking, or wallet.
+
+**Step 3 — Signature Verification (server-side)**
+After payment, Razorpay sends back a `payment_id` and a `signature`. Apps Script recomputes the expected signature using:
+```
+HMAC_SHA256(order_id + "|" + payment_id, razorpay_secret)
+```
+If it matches → payment is genuine → order is saved to the sheet.
+
+This cryptographic check prevents anyone from faking a successful payment.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vanilla HTML, CSS, JavaScript (single file) |
+| Backend | Google Apps Script (serverless) |
+| Database | Google Sheets |
+| Payments | Razorpay (test mode / live mode) |
+| Fonts | Google Fonts (Cormorant Garamond + Inter) |
+| Images | Unsplash (free, no API key needed) |
+| Hosting | Any static host (GitHub Pages, Netlify, local file) |
+
+---
+
+## Features
+
+- **Product catalogue** loaded live from Google Sheets
+- **Category filters** — Audio, Computing, Accessories, Lighting, Storage
+- **Cart drawer** with quantity controls and live subtotal
+- **Skeleton loading** placeholders while products fetch
+- **Customer form** with validation (name, phone, email, address)
+- **Secure Razorpay checkout** with UPI, cards, netbanking, wallets
+- **HMAC-SHA256 signature verification** — fraud-proof payment confirmation
+- **Auto order logging** to Google Sheets with full details
+- **Toast notifications** for cart actions and payment status
+- **Fully responsive** — works on mobile, tablet, and desktop
+- **Zero backend cost** — Google Apps Script free tier is more than enough
+
+---
+
+## Data Security
+
+- The Razorpay **secret key** lives only in Apps Script — never in the HTML file
+- The Razorpay **public key** (`rzp_test_...`) is safe to be in the frontend
+- Payment authenticity is verified server-side using cryptographic signatures
+- Google Sheets access is restricted by OAuth scopes set in `appsscript.json`
+
+---
+
+## Project Structure
+
+```
+Your Computer/
+└── index.html        ← Entire frontend (UI + JS logic). Open this in a browser.
+```
+
+```
+Google (script.google.com) — completely separate, lives in your Google account
+├── Code.gs           ← Backend API (products, orders, Razorpay)
+└── appsscript.json   ← Permissions and deployment config
+```
+
+```
+Google Sheets (sheets.google.com) — also separate, linked by Sheet ID
+├── Products tab      ← Your product catalogue (edit here to add/remove products)
+└── Orders tab        ← Auto-filled every time a customer pays
+```
+
+> These three parts are independent. `index.html` is just a file on your computer (or any host).
+> Apps Script and Google Sheets are both cloud tools inside your Google account.
+> They talk to each other via the Apps Script deployment URL.
+
+---
+
+## Built By
+
+**IMMORTAL** · Payments secured by Razorpay · Data stored in Google Sheets
